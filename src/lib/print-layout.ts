@@ -46,8 +46,15 @@ function parseNumber(value: unknown, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+/** Accepts numbers or raw env strings (e.g. "90", "90%"). */
+export type PrintBoxInput = {
+  width?: number | string;
+  top?: number | string;
+  left?: number | string;
+};
+
 export function normalizePrintBox(
-  input: Partial<PrintBox> | Record<string, unknown> | undefined,
+  input: PrintBoxInput | Record<string, unknown> | undefined,
   fallback: PrintBox = DEFAULT_PRINT_BOX,
 ): PrintBox {
   return {
@@ -59,7 +66,7 @@ export function normalizePrintBox(
 
 export function normalizePrintLayout(
   input:
-    | Partial<{ cover: Partial<PrintBox>; result: Partial<PrintBox> }>
+    | Partial<{ cover: PrintBoxInput; result: PrintBoxInput }>
     | null
     | undefined,
   fallback: PrintLayout = DEFAULT_PRINT_LAYOUT,
