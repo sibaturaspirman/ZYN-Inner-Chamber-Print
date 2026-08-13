@@ -109,7 +109,7 @@ export function PrintBridge() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "d") {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
         event.preventDefault();
         setDebugUi((v) => !v);
       }
@@ -315,7 +315,7 @@ export function PrintBridge() {
         type="button"
         className="kiosk-hotzone"
         aria-label="Toggle debug UI"
-        title="Toggle debug (Ctrl+D)"
+        title="Toggle debug (Ctrl+C)"
         onClick={() => setDebugUi((v) => !v)}
       />
 
@@ -326,7 +326,7 @@ export function PrintBridge() {
               ZYN Inner Chamber Print
             </div>
             <div className="truncate text-xs" style={{ color: "var(--muted)" }}>
-              Debug UI · Ctrl+D hide · print width/top/left configurable
+              Debug UI · Ctrl+C hide · print width/top/left configurable
             </div>
           </div>
 
