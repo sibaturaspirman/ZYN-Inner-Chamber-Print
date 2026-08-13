@@ -291,7 +291,7 @@ export function PrintBridge() {
 
   const testPrint = async () => {
     if (busyRef.current) return;
-    const src = previewUrl ?? "/cover-test.png";
+    const src = previewUrl ?? "/cover-test2.png";
     setBusyBoth(true);
     setStatus("printing");
     setMessage("Test print layout…");
@@ -495,7 +495,7 @@ export function PrintBridge() {
                 <div className="kiosk-preview">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/cover-test.png"
+                    src="/cover-test2.png"
                     alt="Cover"
                     className="max-h-full max-w-full object-contain"
                   />
@@ -522,7 +522,7 @@ export function PrintBridge() {
 
       <div id="print-root" aria-hidden className="hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/cover-test.png" alt="" />
+        <img src="/cover-test2.png" alt="" />
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={previewUrl} alt="" />

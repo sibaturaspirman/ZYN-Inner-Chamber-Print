@@ -5,7 +5,7 @@ import {
   toPrintLayoutCss,
 } from "@/lib/print-layout";
 
-const COVER_URL = "/cover-test.png";
+const COVER_URL = "/cover-test2.png";
 
 function waitForImage(img: HTMLImageElement): Promise<void> {
   if (img.complete && img.naturalWidth > 0) {
@@ -28,7 +28,7 @@ function escapeAttr(value: string): string {
 
 /**
  * Print 2 pages in one job:
- * 1) cover (`/cover-test.png`)
+ * 1) cover (`/cover-test2.png`)
  * 2) poster from API (object URL)
  *
  * Layout (width / top / left) is configurable per page.
