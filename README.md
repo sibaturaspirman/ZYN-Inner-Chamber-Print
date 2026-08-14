@@ -34,6 +34,15 @@ npm run build && npm run start
 
 Catatan: install PWA butuh HTTPS atau `localhost`.
 
+## Test print 4 hasil
+
+Buka [http://localhost:3000/print](http://localhost:3000/print):
+
+- Logic & config **terpisah** dari kiosk (tidak pakai wrap `cover-result.png`)
+- Grid 4 gambar, klik ON/OFF
+- Config width `%` / top-left `px` (localStorage sendiri)
+- Ctrl+C toggle panel config
+
 ## Env
 
 | Key | Keterangan |

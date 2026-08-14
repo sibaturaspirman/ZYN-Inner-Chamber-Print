@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PrintLayoutFields } from "@/components/PrintLayoutFields";
 import {
   clearPrintLayoutOverride,
   DEFAULT_PRINT_LAYOUT,
   loadPrintLayoutOverride,
-  normalizePrintBox,
   normalizePrintLayout,
   savePrintLayoutOverride,
-  type PrintBox,
   type PrintLayout,
 } from "@/lib/print-layout";
 import { printCoverAndPoster } from "@/lib/print-poster";
@@ -26,60 +25,6 @@ type Config = {
   pollIntervalMs: number;
   printLayout: PrintLayout;
 };
-
-function LayoutFields({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: PrintBox;
-  onChange: (next: PrintBox) => void;
-}) {
-  const fields = [
-    { key: "width" as const, fieldLabel: "Width", unit: "%" },
-    { key: "top" as const, fieldLabel: "Top", unit: "px" },
-    { key: "left" as const, fieldLabel: "Left", unit: "px" },
-  ];
-
-  return (
-    <div className="print-layout-block">
-      <div
-        className="mb-1.5 text-[11px] uppercase tracking-[0.14em]"
-        style={{ color: "var(--muted)" }}
-      >
-        {label}
-      </div>
-      <div className="print-layout-grid">
-        {fields.map(({ key, fieldLabel, unit }) => (
-          <label key={key} className="print-layout-field">
-            <span>
-              {fieldLabel} ({unit})
-            </span>
-            <div className="print-layout-input">
-              <input
-                type="number"
-                inputMode="decimal"
-                step={key === "width" ? 1 : 1}
-                value={Number.isFinite(value[key]) ? value[key] : 0}
-                onChange={(event) => {
-                  const n = Number(event.target.value);
-                  onChange(
-                    normalizePrintBox({
-                      ...value,
-                      [key]: Number.isFinite(n) ? n : 0,
-                    }),
-                  );
-                }}
-              />
-              <span className="print-layout-unit">{unit}</span>
-            </div>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export function PrintBridge() {
   const [config, setConfig] = useState<Config | null>(null);
@@ -435,12 +380,12 @@ export function PrintBridge() {
                 Print layout
               </div>
 
-              <LayoutFields
+              <PrintLayoutFields
                 label="Cover"
                 value={printLayout.cover}
                 onChange={(cover) => updateLayout({ ...printLayout, cover })}
               />
-              <LayoutFields
+              <PrintLayoutFields
                 label="Hasil API"
                 value={printLayout.result}
                 onChange={(result) => updateLayout({ ...printLayout, result })}

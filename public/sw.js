@@ -1,7 +1,8 @@
 /* ZYN Inner Chamber Print — lightweight PWA service worker */
-const CACHE = "zyn-print-shell-v7";
+const CACHE = "zyn-print-shell-v9";
 const PRECACHE = [
   "/",
+  "/print",
   "/manifest.webmanifest",
   "/cover-fix.png",
   "/cover-result.png",

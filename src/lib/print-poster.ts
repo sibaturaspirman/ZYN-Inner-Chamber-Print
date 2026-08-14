@@ -30,11 +30,9 @@ function escapeAttr(value: string): string {
 }
 
 /**
- * Print 2 pages in one job:
+ * Kiosk print only — 2 pages:
  * 1) cover (`/cover-fix.png`)
- * 2) API poster wrapped in `/cover-result.png` (same ratio)
- *
- * Layout (width / top / left) is configurable per page.
+ * 2) API poster wrapped in `/cover-result.png`
  */
 export function printCoverAndPoster(
   posterObjectUrl: string,
@@ -154,7 +152,6 @@ export function printCoverAndPoster(
         object-fit: contain;
       }
 
-      /* Wrapper locks API poster to cover-result ratio (645×990). */
       .result-wrap {
         position: absolute;
         top: ${resultTop};
