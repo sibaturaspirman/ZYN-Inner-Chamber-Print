@@ -1,6 +1,13 @@
 /* ZYN Inner Chamber Print — lightweight PWA service worker */
-const CACHE = "zyn-print-shell-v6";
-const PRECACHE = ["/", "/manifest.webmanifest", "/cover-fix2.png", "/icons/icon-192.png", "/icons/icon-512.png"];
+const CACHE = "zyn-print-shell-v7";
+const PRECACHE = [
+  "/",
+  "/manifest.webmanifest",
+  "/cover-fix.png",
+  "/cover-result.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

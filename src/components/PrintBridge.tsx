@@ -291,7 +291,7 @@ export function PrintBridge() {
 
   const testPrint = async () => {
     if (busyRef.current) return;
-    const src = previewUrl ?? "/cover-fix2.png";
+    const src = previewUrl ?? "/cover-fix.png";
     setBusyBoth(true);
     setStatus("printing");
     setMessage("Test print layout…");
@@ -495,24 +495,35 @@ export function PrintBridge() {
                 <div className="kiosk-preview">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/cover-fix2.png"
+                    src="/cover-fix.png"
                     alt="Cover"
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>
                 <div className="kiosk-preview">
-                  {previewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                  <div className="result-preview-wrap">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={previewUrl}
-                      alt="Poster terakhir"
-                      className="max-h-full max-w-full object-contain"
+                      src="/cover-result.png"
+                      alt=""
+                      className="result-preview-frame"
                     />
-                  ) : (
-                    <span className="text-xs" style={{ color: "var(--muted)" }}>
-                      Hasil API — belum ada
-                    </span>
-                  )}
+                    {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewUrl}
+                        alt="Poster terakhir"
+                        className="result-preview-poster"
+                      />
+                    ) : (
+                      <span
+                        className="result-preview-empty text-xs"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        Hasil API — belum ada
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -522,11 +533,15 @@ export function PrintBridge() {
 
       <div id="print-root" aria-hidden className="hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/cover-fix2.png" alt="" />
-        {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="" />
-        ) : null}
+        <img src="/cover-fix.png" alt="" />
+        <div className="result-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/cover-result.png" alt="" />
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={previewUrl} alt="" />
+          ) : null}
+        </div>
       </div>
     </div>
   );

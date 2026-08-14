@@ -5,7 +5,10 @@ import {
   toPrintLayoutCss,
 } from "@/lib/print-layout";
 
-const COVER_URL = "/cover-fix2.png";
+const COVER_URL = "/cover-fix.png";
+const RESULT_WRAP_URL = "/cover-result.png";
+/** Target print aspect from cover-result.png */
+const RESULT_ASPECT = "645 / 990";
 
 function waitForImage(img: HTMLImageElement): Promise<void> {
   if (img.complete && img.naturalWidth > 0) {
@@ -28,8 +31,8 @@ function escapeAttr(value: string): string {
 
 /**
  * Print 2 pages in one job:
- * 1) cover (`/cover-fix2.png`)
- * 2) poster from API (object URL)
+ * 1) cover (`/cover-fix.png`)
+ * 2) API poster wrapped in `/cover-result.png` (same ratio)
  *
  * Layout (width / top / left) is configurable per page.
  */
@@ -67,7 +70,7 @@ export function printCoverAndPoster(
       }
 
       const images = Array.from(doc.querySelectorAll("img"));
-      if (images.length < 2) {
+      if (images.length < 3) {
         cleanup();
         reject(new Error("Print images missing"));
         return;
@@ -94,6 +97,7 @@ export function printCoverAndPoster(
     };
 
     const coverSrc = new URL(COVER_URL, window.location.origin).href;
+    const wrapSrc = new URL(RESULT_WRAP_URL, window.location.origin).href;
     const coverWidth = escapeAttr(layout.cover.width);
     const coverTop = escapeAttr(layout.cover.top);
     const coverLeft = escapeAttr(layout.cover.left);
@@ -140,24 +144,45 @@ export function printCoverAndPoster(
         break-after: auto;
       }
 
-      .page img {
+      .page-cover > img {
         position: absolute;
+        top: ${coverTop};
+        left: ${coverLeft};
+        width: ${coverWidth};
         height: auto;
-        max-width: none;
         display: block;
         object-fit: contain;
       }
 
-      .page-cover img {
-        top: ${coverTop};
-        left: ${coverLeft};
-        width: ${coverWidth};
-      }
-
-      .page-result img {
+      /* Wrapper locks API poster to cover-result ratio (645×990). */
+      .result-wrap {
+        position: absolute;
         top: ${resultTop};
         left: ${resultLeft};
         width: ${resultWidth};
+        aspect-ratio: ${RESULT_ASPECT};
+        overflow: hidden;
+      }
+
+      .result-wrap .result-frame,
+      .result-wrap .result-poster {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        margin: 0;
+      }
+
+      .result-wrap .result-frame {
+        object-fit: fill;
+        z-index: 0;
+      }
+
+      .result-wrap .result-poster {
+        object-fit: contain;
+        object-position: center;
+        z-index: 1;
       }
     </style>
   </head>
@@ -166,7 +191,10 @@ export function printCoverAndPoster(
       <img src="${coverSrc}" alt="Cover" />
     </section>
     <section class="page page-result" aria-label="Poster">
-      <img src="${escapeAttr(posterObjectUrl)}" alt="Poster" />
+      <div class="result-wrap">
+        <img class="result-frame" src="${wrapSrc}" alt="" />
+        <img class="result-poster" src="${escapeAttr(posterObjectUrl)}" alt="Poster" />
+      </div>
     </section>
   </body>
 </html>`;
