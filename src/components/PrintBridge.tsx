@@ -117,7 +117,7 @@ export function PrintBridge() {
 
   const consumeAndPrint = useCallback(async (res: Response) => {
     setStatus("printing");
-    setMessage("Poster diterima — mencetak cover + hasil…");
+    setMessage("Poster diterima — mencetak 1 halaman (cover / hasil, rotate)…");
 
     // Persist bytes locally first (consume-on-read: cannot re-fetch).
     const blob = await res.blob();
@@ -135,7 +135,7 @@ export function PrintBridge() {
     setLastPrintedAt(stamped);
     setPrintCount((n) => n + 1);
     setStatus("printed");
-    setMessage(`2 halaman dicetak pukul ${stamped} (cover + hasil)`);
+    setMessage(`1 halaman dicetak pukul ${stamped} (cover / hasil, rotate)`);
   }, []);
 
   /** Returns ms until next poll (supports soft backoff on errors). */
@@ -156,7 +156,9 @@ export function PrintBridge() {
       if (res.status === 404) {
         setStatus((prev) => (prev === "printed" ? prev : "waiting"));
         setMessage((prev) =>
-          prev.startsWith("Berhasil") || prev.startsWith("2 halaman")
+          prev.startsWith("Berhasil") ||
+          prev.startsWith("1 halaman") ||
+          prev.startsWith("2 halaman")
             ? prev
             : "Belum ada poster. Tetap polling…",
         );
@@ -243,7 +245,7 @@ export function PrintBridge() {
     try {
       await printCoverAndPoster(src, printLayout);
       setStatus("printed");
-      setMessage("Test print dikirim (cover + sample/hasil)");
+      setMessage("Test print dikirim (1 halaman: cover / hasil, rotate)");
     } catch (error) {
       setStatus("error");
       setMessage(
@@ -434,10 +436,17 @@ export function PrintBridge() {
                 className="mb-2 text-[11px] uppercase tracking-[0.14em]"
                 style={{ color: "var(--muted)" }}
               >
-                Print preview (2 halaman)
+                Print preview (1 halaman, atas dempetan + rotate)
               </div>
-              <div className="kiosk-preview-stack">
-                <div className="kiosk-preview">
+              <p
+                className="mb-2 text-[11px] leading-relaxed"
+                style={{ color: "var(--muted)" }}
+              >
+                Stack pakai Cover top/left/width (width = % halaman). Result
+                width + top/left offset (top 0 = dempetan). Rotate -90°.
+              </p>
+              <div className="kiosk-preview-duo">
+                <div className="kiosk-preview kiosk-preview-rot">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/cover-fix.png"
@@ -445,7 +454,7 @@ export function PrintBridge() {
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>
-                <div className="kiosk-preview">
+                <div className="kiosk-preview kiosk-preview-rot">
                   <div className="result-preview-wrap">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img

@@ -2,13 +2,13 @@ import type { PrintLayout } from "@/lib/print-layout";
 import {
   DEFAULT_PRINT_LAYOUT,
   normalizePrintLayout,
-  toPrintLayoutCss,
 } from "@/lib/print-layout";
 
 const COVER_URL = "/cover-fix.png";
 const RESULT_WRAP_URL = "/cover-result.png";
-/** Target print aspect from cover-result.png */
-const RESULT_ASPECT = "645 / 990";
+
+/** Portrait 645×990 → landscape strip after -90° is 990×645 */
+const STRIP_H_OVER_W = 645 / 990;
 
 function waitForImage(img: HTMLImageElement): Promise<void> {
   if (img.complete && img.naturalWidth > 0) {
@@ -30,17 +30,27 @@ function escapeAttr(value: string): string {
 }
 
 /**
- * Kiosk print only — 2 pages:
- * 1) cover (`/cover-fix.png`)
- * 2) API poster wrapped in `/cover-result.png`
+ * Convert layout length to CSS that is reliable in print:
+ * - bare number / px → px
+ * - % → vw (print % of page width is unstable with nested %)
+ */
+function toPrintLength(value: number, kind: "width" | "offset"): string {
+  if (kind === "width") {
+    return `${value}vw`;
+  }
+  return `${value}px`;
+}
+
+/**
+ * Kiosk print — 1 page:
+ * Cover & result di atas, dempetan, rotate -90°.
+ * top/left/width dari config (width = % halaman → vw).
  */
 export function printCoverAndPoster(
   posterObjectUrl: string,
   layoutInput?: Partial<PrintLayout>,
 ): Promise<void> {
-  const layout = toPrintLayoutCss(
-    normalizePrintLayout(layoutInput, DEFAULT_PRINT_LAYOUT),
-  );
+  const layout = normalizePrintLayout(layoutInput, DEFAULT_PRINT_LAYOUT);
 
   return new Promise((resolve, reject) => {
     const frame = document.createElement("iframe");
@@ -96,27 +106,27 @@ export function printCoverAndPoster(
 
     const coverSrc = new URL(COVER_URL, window.location.origin).href;
     const wrapSrc = new URL(RESULT_WRAP_URL, window.location.origin).href;
-    const coverWidth = escapeAttr(layout.cover.width);
-    const coverTop = escapeAttr(layout.cover.top);
-    const coverLeft = escapeAttr(layout.cover.left);
-    const resultWidth = escapeAttr(layout.result.width);
-    const resultTop = escapeAttr(layout.result.top);
-    const resultLeft = escapeAttr(layout.result.left);
+
+    const coverW = toPrintLength(layout.cover.width, "width");
+    const coverTop = toPrintLength(layout.cover.top, "offset");
+    const coverLeft = toPrintLength(layout.cover.left, "offset");
+    const resultW = toPrintLength(layout.result.width, "width");
+    const resultTop = toPrintLength(layout.result.top, "offset");
+    const resultLeft = toPrintLength(layout.result.left, "offset");
+
+    // Strip height from width (vw → vw), avoids aspect-ratio print bugs.
+    const coverH = `${layout.cover.width * STRIP_H_OVER_W}vw`;
+    const resultH = `${layout.result.width * STRIP_H_OVER_W}vw`;
 
     frame.srcdoc = `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Print cover + poster</title>
+    <title>Print cover + poster (1 page)</title>
     <style>
-      @page {
-        margin: 0;
-        size: auto;
-      }
+      @page { margin: 0; }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       html, body {
         margin: 0;
@@ -130,39 +140,61 @@ export function printCoverAndPoster(
         position: relative;
         width: 100vw;
         height: 100vh;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        page-break-after: always;
-        break-after: page;
-      }
-
-      .page:last-child {
-        page-break-after: auto;
-        break-after: auto;
-      }
-
-      .page-cover > img {
-        position: absolute;
-        top: ${coverTop};
-        left: ${coverLeft};
-        width: ${coverWidth};
-        height: auto;
-        display: block;
-        object-fit: contain;
-      }
-
-      .result-wrap {
-        position: absolute;
-        top: ${resultTop};
-        left: ${resultLeft};
-        width: ${resultWidth};
-        aspect-ratio: ${RESULT_ASPECT};
         overflow: hidden;
       }
 
-      .result-wrap .result-frame,
-      .result-wrap .result-poster {
+      .stack {
+        position: absolute;
+        top: ${escapeAttr(coverTop)};
+        left: ${escapeAttr(coverLeft)};
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        line-height: 0;
+      }
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+        line-height: 0;
+      }
+
+      .panel-cover {
+        width: ${escapeAttr(coverW)};
+        height: ${escapeAttr(coverH)};
+      }
+
+      .panel-result {
+        width: ${escapeAttr(resultW)};
+        height: ${escapeAttr(resultH)};
+        margin-top: ${escapeAttr(resultTop)};
+        margin-left: ${escapeAttr(resultLeft)};
+      }
+
+      /*
+       * Rotate -90° filler:
+       * box size swaps so portrait art fills the landscape strip.
+       */
+      .rot {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: ${escapeAttr(coverH)};
+        height: ${escapeAttr(coverW)};
+        transform: translate(-50%, -50%) rotate(-90deg);
+        overflow: hidden;
+      }
+
+      .panel-result .rot {
+        width: ${escapeAttr(resultH)};
+        height: ${escapeAttr(resultW)};
+      }
+
+      .rot .cover-img,
+      .rot .result-frame,
+      .rot .result-poster {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -171,12 +203,17 @@ export function printCoverAndPoster(
         margin: 0;
       }
 
-      .result-wrap .result-frame {
+      .rot .cover-img {
+        object-fit: contain;
+        object-position: center;
+      }
+
+      .rot .result-frame {
         object-fit: fill;
         z-index: 0;
       }
 
-      .result-wrap .result-poster {
+      .rot .result-poster {
         object-fit: contain;
         object-position: center;
         z-index: 1;
@@ -184,13 +221,19 @@ export function printCoverAndPoster(
     </style>
   </head>
   <body>
-    <section class="page page-cover" aria-label="Cover">
-      <img src="${coverSrc}" alt="Cover" />
-    </section>
-    <section class="page page-result" aria-label="Poster">
-      <div class="result-wrap">
-        <img class="result-frame" src="${wrapSrc}" alt="" />
-        <img class="result-poster" src="${escapeAttr(posterObjectUrl)}" alt="Poster" />
+    <section class="page" aria-label="Cover and poster">
+      <div class="stack">
+        <div class="panel panel-cover">
+          <div class="rot">
+            <img class="cover-img" src="${coverSrc}" alt="Cover" />
+          </div>
+        </div>
+        <div class="panel panel-result">
+          <div class="rot">
+            <img class="result-frame" src="${wrapSrc}" alt="" />
+            <img class="result-poster" src="${escapeAttr(posterObjectUrl)}" alt="Poster" />
+          </div>
+        </div>
       </div>
     </section>
   </body>

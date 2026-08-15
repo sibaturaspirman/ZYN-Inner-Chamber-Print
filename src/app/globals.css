@@ -203,6 +203,17 @@ button {
   gap: 0.5rem;
 }
 
+.kiosk-preview-duo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.kiosk-preview-rot img,
+.kiosk-preview-rot .result-preview-wrap {
+  transform: rotate(-90deg);
+}
+
 .kiosk-preview {
   display: flex;
   height: 160px;
