@@ -10,13 +10,14 @@ import {
   printTestImages,
   saveTestPrintBox,
   TEST_RESULT_IMAGES,
+  TEST_RESULT_LABELS,
   type TestPrintBox,
 } from "@/lib/print-test";
 
 export function TestPrintPage() {
   const [debugUi, setDebugUi] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("Siap print 4 hasil");
+  const [message, setMessage] = useState("Siap print cover + 4 hasil");
   const [printBox, setPrintBox] = useState<TestPrintBox>(DEFAULT_TEST_PRINT_BOX);
   const [selected, setSelected] = useState<boolean[]>(() =>
     TEST_RESULT_IMAGES.map(() => true),
@@ -78,7 +79,7 @@ export function TestPrintPage() {
         <header className="kiosk-header">
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold tracking-wide">
-              Test Print · 4 hasil
+              Test Print · cover + 4 hasil
             </div>
             <div className="truncate text-xs" style={{ color: "var(--muted)" }}>
               /print · logic terpisah dari kiosk · tanpa wrap
@@ -106,6 +107,7 @@ export function TestPrintPage() {
         <main className="test-print-grid">
           {TEST_RESULT_IMAGES.map((src, index) => {
             const on = selected[index];
+            const label = TEST_RESULT_LABELS[index] ?? `Item ${index + 1}`;
             return (
               <button
                 key={src}
@@ -122,10 +124,10 @@ export function TestPrintPage() {
               >
                 <div className="test-print-thumb-plain">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Result ${index + 1}`} />
+                  <img src={src} alt={label} />
                 </div>
                 <div className="test-print-card-meta">
-                  <span>#{index + 1}</span>
+                  <span>{label}</span>
                   <span>{on ? "ON" : "OFF"}</span>
                 </div>
               </button>

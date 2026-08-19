@@ -19,10 +19,19 @@ export const DEFAULT_TEST_PRINT_BOX: TestPrintBox = {
 };
 
 export const TEST_RESULT_IMAGES = [
-  "/test-result-1.png",
-  "/test-result-2.png",
-  "/test-result-3.png",
-  "/test-result-4.png",
+  "/cover-fix.png",
+  "/test-result-1-v2.png",
+  "/test-result-2-v2.png",
+  "/test-result-3-v2.png",
+  "/test-result-4-v2.png",
+] as const;
+
+export const TEST_RESULT_LABELS = [
+  "Cover",
+  "Result 1",
+  "Result 2",
+  "Result 3",
+  "Result 4",
 ] as const;
 
 const STORAGE_KEY = "zyn-test-print-layout-v1";
